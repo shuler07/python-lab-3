@@ -12,3 +12,14 @@ dependencies = [
 [tool.coverage.report]
 fail_under = 90.0
 precision = 2
+
+
+[tool.ruff.lint]
+ignore = ["E731"]
+
+
+[tool.mypy]
+disable_error_code = [
+    "empty-body",
+    "func-returns-value",
+]
