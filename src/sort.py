@@ -1,5 +1,6 @@
 from typing import Callable
 from functools import cmp_to_key
+from sys import setrecursionlimit
 from src.validation import validate_number
 
 
@@ -101,6 +102,8 @@ def quick_sort(
 
     key = get_key_from_key_and_cmp(key=key, cmp=cmp)
     a_sorted = get_validated_list_copy(a)
+
+    setrecursionlimit(len(a))
 
     def _quick_sort(_a: list[int]):
         if len(_a) == 0:
