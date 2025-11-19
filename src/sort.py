@@ -1,20 +1,24 @@
-from typing import Callable
+from typing import Callable, TypeVar
 from functools import cmp_to_key
 from sys import setrecursionlimit
 from src.validation import validate_number
+from src.errors import IrrationalListError
 
 
-def get_key_from_key_and_cmp(
-    key: Callable[[int], int] | None, cmp: Callable[[int, int], int] | None
-) -> Callable[[int], int]:
+NUM = TypeVar("NUM", int, float)
+
+
+def get_key_function(
+    key: Callable[[NUM], NUM] | None, cmp: Callable[[NUM, NUM], NUM] | None
+) -> Callable[[NUM], NUM]:
     """
-    Check is cmp function present and return key function from cmp, otherwise check is key function present and return it.
+    Check is cmp function present and return key function from cmp, otherwise check is key function present and return it.\\
     If cmp and key functions not present, returns default ascending sort key function
     Args:
-        key (Callable[[int], int]): sorting key function
-        cmp (Callable[[int, int], int]): sorting cmp function
+        key (Callable[[int | float], int | float]): sorting key function
+        cmp (Callable[[int | float, int | float], int | float]): sorting cmp function
     Returns:
-        Callable[[int], int]: sorting key function
+        Callable[[int | float], int | float]: sorting key function
     """
     # If cmp is present, returns key function from it
     if cmp is not None:
@@ -27,13 +31,13 @@ def get_key_from_key_and_cmp(
         return key  # If key is present, returns it
 
 
-def get_validated_list_copy(a: list[int]) -> list[int]:
+def get_validated_list_copy(a: list[NUM]) -> list[NUM]:
     """
     Validate every element of list is number and make copy of list
     Args:
-        a (list[int]): list
+        a (list[int | float]): list
     Returns:
-        list[int]: shallow copied list of numbers
+        list[int | float]: shallow copied list of numbers
     Raises:
         TypeError: if non number found in list
     """
@@ -45,24 +49,27 @@ def get_validated_list_copy(a: list[int]) -> list[int]:
 
 
 def bubble_sort(
-    a: list[int],
-    key: Callable[[int], int] | None = None,
-    cmp: Callable[[int, int], int] | None = None,
+    a: list[NUM],
+    key: Callable[[NUM], NUM] | None = None,
+    cmp: Callable[[NUM, NUM], NUM] | None = None,
     reverse: bool = False,
-) -> list[int]:
+) -> list[NUM]:
     """
-    Bubble sort list 'a' for O(n^2)
-    If key and cmp both are present, cmp will replace key function
+    Bubble sort list *a*\\
+    If key and cmp both are present, cmp will replace key function\\
+    **Time complexity: O(n^2)**
     Args:
-        a (list[int]): list
-        key (Callable[[T], int]): sorting key function
-        cmp (Callable[[T, T], int]): sorting compare function
+        a (list[int | float]): list
+        key (Callable[[int | flaot], int | float]): sorting key function
+        cmp (Callable[[int | float, int | float], int | float]): sorting compare function
         reverse (bool): is sorting reversed
     Returns:
-        list[int]: sorted list
+        list[int | float]: sorted list
+    Raises:
+        TypeError: if list contains non number objects or key / cmp functions use wrong methods
     """
 
-    key = get_key_from_key_and_cmp(key=key, cmp=cmp)
+    key = get_key_function(key=key, cmp=cmp)
     a_sorted = get_validated_list_copy(a)
 
     try:
@@ -83,29 +90,33 @@ def bubble_sort(
 
 
 def quick_sort(
-    a: list[int],
-    key: Callable[[int], int] | None = None,
-    cmp: Callable[[int, int], int] | None = None,
+    a: list[NUM],
+    key: Callable[[NUM], NUM] | None = None,
+    cmp: Callable[[NUM, NUM], NUM] | None = None,
     reverse: bool = False,
-) -> list[int]:
+) -> list[NUM]:
     """
-    Quick sort list 'a' for O(n*log n)
-    If key and cmp both are present, cmp will replace key function
+    Quick sort list *a*\\
+    If key and cmp both are present, cmp will replace key function\\
+    **Time complexity: from O(n*log n) to O(n^2)**
     Args:
-        a (list[int]): list
-        key (Callable[[T], int]): sorting key function
-        cmp (Callable[[T, T], int]): sorting compare function
+        a (list[int | float]): list
+        key (Callable[[int | float], int | float]): sorting key function
+        cmp (Callable[[int | float, int | float], int | float]): sorting compare function
         reverse (bool): is sorting reversed
     Returns:
-        list[int]: sorted list
+        list[int | float]: sorted list
+    Raises:
+        TypeError: if list contains non number objects or key / cmp functions use wrong methods
     """
 
-    key = get_key_from_key_and_cmp(key=key, cmp=cmp)
+    key = get_key_function(key=key, cmp=cmp)
     a_sorted = get_validated_list_copy(a)
 
-    setrecursionlimit(len(a))
+    # to avoid raising exception
+    setrecursionlimit(max(1000, len(a)))
 
-    def _quick_sort(_a: list[int]):
+    def _quick_sort(_a: list[NUM]) -> list[NUM]:
         if len(_a) == 0:
             return []
         _less, _pivot, _more = [], _a[-1], []
@@ -115,7 +126,7 @@ def quick_sort(
             else:
                 _less.append(_el) if key(_el) > key(_pivot) else _more.append(_el)
 
-        return [*_quick_sort(_less), _pivot, *_quick_sort(_more)]
+        return [*_quick_sort(_less), _pivot, *_quick_sort(_more)]  # type: ignore
 
     try:
         return _quick_sort(a_sorted)
@@ -123,7 +134,56 @@ def quick_sort(
         raise TypeError("Wrong method for object of this type")
 
 
-def counting_sort(a: list[int]) -> list[int]: ...
+def counting_sort(
+    a: list[int],
+    reverse: bool = False,
+) -> list[int]:
+    """
+    Count sort list *a*\\
+    It is rational to use this sort if range of *a* less than list size\\
+    Limits: range of elements <= 10 ** 6\\
+    **Time complexity: O(n+k), k = range of *a***
+    Args:
+        a (list[int]): list
+        reverse (bool): is sorting reversed
+    Returns:
+        list[int]: sorted list
+    Raises:
+        TypeError: if list contains non integer objects
+    """
+
+    def _get_min_max_values(_a: list[int]) -> tuple[int, int]:
+        if isinstance(_a[0], int):
+            _min = _max = _a[0]
+        else:
+            raise TypeError("List contains non integer objects")
+
+        try:
+            for _el in _a[1:]:
+                _min = min(_min, _el)
+                _max = max(_max, _el)
+        except TypeError:
+            raise TypeError("List contains non integer objects")
+        return (_min, _max)
+
+    el_min, el_max = _get_min_max_values(a)
+    el_range = el_max - el_min + 1
+
+    if el_range > 10**6:
+        raise IrrationalListError(el_range)
+
+    counts = [0] * el_range
+
+    for el in a:
+        counts[el - el_min] += 1
+
+    a_sorted = []
+    _range = range(el_range) if not reverse else range(el_range - 1, -1, -1)
+
+    for i in _range:
+        a_sorted.extend([i + el_min for _ in range(counts[i])])
+
+    return a_sorted
 
 
 def radix_sort(a: list[int], base: int = 10) -> list[int]: ...
