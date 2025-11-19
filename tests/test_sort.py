@@ -1,5 +1,5 @@
 import pytest
-from src.sort import bubble_sort, quick_sort, counting_sort
+from src.sort import bubble_sort, quick_sort, counting_sort, radix_sort
 from src.generators import rand_int_array
 from src.errors import IrrationalListError
 
@@ -126,3 +126,24 @@ class TestCountingSort:
         assert exc.match(
             r"Irrational list for such type of sorting. Max range - 10 \*\* 6, got - \d+"
         )
+
+
+class TestRadixSort:
+
+    def test_simple(self, random_list) -> None:
+        assert radix_sort(random_list) == sorted(random_list)
+
+    def test_with_reverse(self, random_list) -> None:
+        assert radix_sort(random_list, reverse=True) == sorted(
+            random_list, reverse=True
+        )
+
+    def test_with_wrong_list(self, str_list) -> None:
+        with pytest.raises(TypeError) as exc:
+            radix_sort(str_list)
+
+        assert exc.errisinstance(TypeError)
+        assert exc.match("List contains non integer objects")
+
+    def test_with_base_different_base(self, random_list) -> None:
+        assert radix_sort(random_list, base=100) == sorted(random_list)
