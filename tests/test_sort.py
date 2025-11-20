@@ -1,5 +1,12 @@
 import pytest
-from src.sort import bubble_sort, quick_sort, counting_sort, radix_sort, bucket_sort
+from src.sort import (
+    bubble_sort,
+    quick_sort,
+    counting_sort,
+    radix_sort,
+    bucket_sort,
+    heap_sort,
+)
 from src.generators import rand_int_array, rand_float_array
 from src.errors import IrrationalListError
 
@@ -127,14 +134,14 @@ class TestCountingSort:
             counting_sort(float_list) == sorted(float_list)
 
         assert exc.errisinstance(TypeError)
-        assert exc.match("List contains invalid objects")
+        assert exc.match("List contains non number objects")
 
     def test_with_str_list(self, str_list) -> None:
         with pytest.raises(TypeError) as exc:
             counting_sort(str_list)
 
         assert exc.errisinstance(TypeError)
-        assert exc.match("List contains invalid objects")
+        assert exc.match("List contains non number objects")
 
     def test_with_irrational_list(self, int_list) -> None:
         with pytest.raises(IrrationalListError) as exc:
@@ -159,14 +166,14 @@ class TestRadixSort:
             radix_sort(float_list) == sorted(float_list)
 
         assert exc.errisinstance(TypeError)
-        assert exc.match("List contains invalid objects")
+        assert exc.match("List contains non number objects")
 
     def test_with_str_list(self, str_list) -> None:
         with pytest.raises(TypeError) as exc:
             radix_sort(str_list)
 
         assert exc.errisinstance(TypeError)
-        assert exc.match("List contains invalid objects")
+        assert exc.match("List contains non number objects")
 
     def test_with_base_different_base(self, int_list) -> None:
         assert radix_sort(int_list, base=100) == sorted(int_list)
@@ -188,4 +195,23 @@ class TestBucketSort:
             bucket_sort(str_list)
 
         assert exc.errisinstance(TypeError)
-        assert exc.match("List contains invalid objects")
+        assert exc.match("List contains non number objects")
+
+
+class TestHeapSort:
+
+    def test_simple(self, int_list) -> None:
+        assert heap_sort(int_list) == sorted(int_list)
+
+    def test_with_reverse(self, int_list) -> None:
+        assert heap_sort(int_list, reverse=True) == sorted(int_list, reverse=True)
+
+    def test_with_float(self, float_list) -> None:
+        assert heap_sort(float_list) == sorted(float_list)
+
+    def test_with_str_list(self, str_list) -> None:
+        with pytest.raises(TypeError) as exc:
+            heap_sort(str_list)
+
+        assert exc.errisinstance(TypeError)
+        assert exc.match("List contains non number objects")

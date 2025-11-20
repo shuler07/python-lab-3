@@ -1,11 +1,9 @@
-from typing import Callable, TypeVar, Any
+from typing import Callable
 from functools import cmp_to_key
 from sys import setrecursionlimit
-from src.validation import validate_number
+from src.heap import Heap
+from src.validation import validate_number, NUM
 from src.errors import IrrationalListError
-
-
-NUM = TypeVar("NUM", int, float)
 
 
 def get_key_function(
@@ -49,21 +47,16 @@ def get_validated_list_copy(a: list[NUM]) -> list[NUM]:
 
 
 def get_min_max_values(
-    a: list[NUM], valid_types: tuple[Any, ...] | Any = (int, float)
+    a: list[NUM], valid_types: tuple[int, float] | type[int] | type[float] = NUM.__constraints__
 ) -> tuple[NUM, NUM]:
     # Validate first values of _min and _max is valid
-    if isinstance(a[0], valid_types):
-        amin = amax = a[0]
-    else:
-        raise TypeError("List contains invalid objects")
+    validate_number(a[0], valid_types)
+    amin = amax = a[0]
 
-    try:
-        for el in a[1:]:
-            amin = min(amin, el)
-            amax = max(amax, el)
-    except TypeError:
-        # If any of elements in list are not valid, min function will raise TypeError
-        raise TypeError("List contains invalid objects")
+    for el in a[1:]:
+        validate_number(el, valid_types)
+        amin = min(amin, el)
+        amax = max(amax, el)
 
     return (amin, amax)
 
@@ -236,10 +229,8 @@ def radix_sort(
     # Divide by sign of number
     a_neg, a_pos = [], []
     for el in a:
-        if isinstance(el, int):
-            a_pos.append(el) if el >= 0 else a_neg.append(-el)
-        else:
-            raise TypeError("List contains invalid objects")
+        validate_number(el, int)
+        a_pos.append(el) if el >= 0 else a_neg.append(-el)
 
     # After sorting negative numbers as positive we need to return minus to it and reverse list
     a_neg_sorted = _radix_sort(a_neg, len(str(max(a_neg))), 1)
@@ -255,9 +246,7 @@ def radix_sort(
     )
 
 
-def bucket_sort(
-    a: list[NUM], buckets: int = 10, reverse: bool = False
-) -> list[NUM]:
+def bucket_sort(a: list[NUM], buckets: int = 10, reverse: bool = False) -> list[NUM]:
     """
     Bucket sort list *a*\\
     It is rational to use this sort if *a* has a lot of distinct elements\\
@@ -294,10 +283,31 @@ def bucket_sort(
     el_min, el_max = get_min_max_values(a)
     el_cap = (el_max - el_min) / buckets
 
-    try:
-        return _bucket_sort(a, el_min, el_cap)  # type: ignore
-    except TypeError:
-        raise TypeError("List contains invalid objects")
+    return _bucket_sort(a, el_min, el_cap)  # type: ignore
 
 
-def heap_sort(a: list[int]) -> list[int]: ...
+def heap_sort(a: list[NUM], reverse: bool = False) -> list[NUM]:
+    """
+    Heap sort list *a*\\
+    **Time complexity: O(n*log n)**
+    Args:
+        a (list[int | float]): list
+        reverse (bool): is sorting reversed
+    Returns:
+        list[int | float]: sorted list
+    Raises:
+        TypeError: if list contains invalid objects
+    """
+
+    # To get ascending  (descending) list, at the top of heap should be the biggest (least) element
+    a_heap = Heap.create(a, not reverse)
+    n = len(a)
+
+    for i in range(n - 1, 0, -1):
+        # Moving biggest (least) element to the end of list
+        a_heap.heap[i], a_heap.heap[0] = a_heap.heap[0], a_heap.heap[i]
+
+        # Finding next biggest (least) element in heap elements until last sorted elements, and moving it to the top of heap
+        a_heap.heapify(i, 0)
+
+    return a_heap.heap
