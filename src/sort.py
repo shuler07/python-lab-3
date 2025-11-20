@@ -1,4 +1,4 @@
-from typing import Callable, TypeVar
+from typing import Callable, TypeVar, Any
 from functools import cmp_to_key
 from sys import setrecursionlimit
 from src.validation import validate_number
@@ -46,6 +46,26 @@ def get_validated_list_copy(a: list[NUM]) -> list[NUM]:
         validate_number(elem)
         a_sorted.append(elem)
     return a_sorted
+
+
+def get_min_max_values(
+    a: list[NUM], valid_types: tuple[Any, ...] | Any = (int, float)
+) -> tuple[NUM, NUM]:
+    # Validate first values of _min and _max is valid
+    if isinstance(a[0], valid_types):
+        amin = amax = a[0]
+    else:
+        raise TypeError("List contains invalid objects")
+
+    try:
+        for el in a[1:]:
+            amin = min(amin, el)
+            amax = max(amax, el)
+    except TypeError:
+        # If any of elements in list are not valid, min function will raise TypeError
+        raise TypeError("List contains invalid objects")
+
+    return (amin, amax)
 
 
 def bubble_sort(
@@ -150,27 +170,10 @@ def counting_sort(
     Returns:
         list[int]: sorted list
     Raises:
-        TypeError: if list contains non integer objects
+        TypeError: if list contains invalid objects
     """
 
-    def _get_min_max_values(_a: list[int]) -> tuple[int, int]:
-        # Validate first values of _min and _max is integer
-        if isinstance(_a[0], int):
-            _min = _max = _a[0]
-        else:
-            raise TypeError("List contains non integer objects")
-
-        try:
-            for _el in _a[1:]:
-                _min = min(_min, _el)
-                _max = max(_max, _el)
-        except TypeError:
-            # If any of elements in list are not integer, min function will raise TypeError
-            raise TypeError("List contains non integer objects")
-
-        return (_min, _max)
-
-    el_min, el_max = _get_min_max_values(a)
+    el_min, el_max = get_min_max_values(a, int)
 
     # Calculate range of list
     el_range = el_max - el_min + 1
@@ -208,7 +211,7 @@ def radix_sort(
     Returns:
         list[int]: sorted list
     Raises:
-        TypeError: if list contains non integer objects
+        TypeError: if list contains invalid objects
     """
 
     def _radix_sort(_a: list[int], _i: int, _c: int) -> list[int]:
@@ -232,11 +235,11 @@ def radix_sort(
 
     # Divide by sign of number
     a_neg, a_pos = [], []
-    try:
-        for el in a:
+    for el in a:
+        if isinstance(el, int):
             a_pos.append(el) if el >= 0 else a_neg.append(-el)
-    except TypeError:
-        raise TypeError("List contains non integer objects")
+        else:
+            raise TypeError("List contains invalid objects")
 
     # After sorting negative numbers as positive we need to return minus to it and reverse list
     a_neg_sorted = _radix_sort(a_neg, len(str(max(a_neg))), 1)
@@ -252,7 +255,49 @@ def radix_sort(
     )
 
 
-def bucket_sort(a: list[float], buckets: int | None = None) -> list[float]: ...
+def bucket_sort(
+    a: list[NUM], buckets: int = 10, reverse: bool = False
+) -> list[NUM]:
+    """
+    Bucket sort list *a*\\
+    It is rational to use this sort if *a* has a lot of distinct elements\\
+    **Time complexity: from O(n) to O(n^2)**
+    Args:
+        a (list[int | float]): list
+        reverse (bool): is sorting reversed
+    Returns:
+        list[int | float]: sorted list
+    Raises:
+        TypeError: if list contains invalid objects
+    """
+
+    def _bucket_sort(_a: list[NUM], _off: NUM, _cap: NUM) -> list[NUM]:
+        "Recursive bucket sort until bucket is empty or has single element"
+        if len(_a) <= 1:
+            return _a
+
+        _bucks: list[list[NUM]] = [[] for _ in range(buckets)]
+        for _el in _a:
+            # Offset value of element (not always start value = 0) and find needed bucket
+            _ind = int((_el - _off) // _cap)
+            _bucks[_ind].append(_el)
+
+        _res = []
+        _range = range(buckets) if not reverse else range(buckets - 1, -1, -1)
+        for _i in _range:
+            # Make for every new bucket correct offset, reduce capacity
+            _res.extend(_bucket_sort(_bucks[_i], _off + _cap * _i, _cap / buckets))  # type: ignore
+
+        return _res
+
+    # Calculate start value (el_min) of first bucket and buckets capacity
+    el_min, el_max = get_min_max_values(a)
+    el_cap = (el_max - el_min) / buckets
+
+    try:
+        return _bucket_sort(a, el_min, el_cap)  # type: ignore
+    except TypeError:
+        raise TypeError("List contains invalid objects")
 
 
 def heap_sort(a: list[int]) -> list[int]: ...
