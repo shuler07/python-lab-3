@@ -47,7 +47,8 @@ def get_validated_list_copy(a: list[NUM]) -> list[NUM]:
 
 
 def get_min_max_values(
-    a: list[NUM], valid_types: tuple[int, float] | type[int] | type[float] = NUM.__constraints__
+    a: list[NUM],
+    valid_types: tuple[int, float] | type[int] | type[float] = NUM.__constraints__,
 ) -> tuple[NUM, NUM]:
     # Validate first values of _min and _max is valid
     validate_number(a[0], valid_types)
@@ -262,20 +263,25 @@ def bucket_sort(a: list[NUM], buckets: int = 10, reverse: bool = False) -> list[
 
     def _bucket_sort(_a: list[NUM], _off: NUM, _cap: NUM) -> list[NUM]:
         "Recursive bucket sort until bucket is empty or has single element"
-        if len(_a) <= 1:
+        if len(_a) <= 1 or _cap < 10**-3:
             return _a
 
         _bucks: list[list[NUM]] = [[] for _ in range(buckets)]
         for _el in _a:
             # Offset value of element (not always start value = 0) and find needed bucket
             _ind = int((_el - _off) // _cap)
+            # Max element might have index == buckets
+            if _ind >= buckets:
+                _ind = buckets - 1
+            if _ind < 0:
+                _ind = 0
             _bucks[_ind].append(_el)
 
         _res = []
         _range = range(buckets) if not reverse else range(buckets - 1, -1, -1)
         for _i in _range:
             # Make for every new bucket correct offset, reduce capacity
-            _res.extend(_bucket_sort(_bucks[_i], _off + _cap * _i, _cap / buckets))  # type: ignore
+            _res.extend(_bucket_sort(_bucks[_i], int((_off + _cap * _i) * 100) / 100, int(_cap / buckets * 100) / 100))  # type: ignore
 
         return _res
 
