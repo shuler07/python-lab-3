@@ -1,63 +1,75 @@
-# Шаблон репозитория, для успешной сдачи лабораторных работ.
+# (Rus) Лабораторная работа #3
+Мини-пакет алгоритмов, включающий в себя рекурсивные и итеративные функции факториала и фибоначи, сортировки (пузырьковая, быстрая, подсчетом, поразрядная, блочная, пирамидальная), структуры хипа и стека на списках, кастомные генераторы числовых списков, бенчмарки выполнения функции, функций сортировок. Поддержка CLI через typer
 
-## Введение
-Данный шаблон является примером оформления кода для сдачи лабораторных работ.
-Рекомендуется  строго его придерживаться во избежания проблем при сдаче и понижения баллов
-
+## Реализованный функционал через typer
+1. fibonacci {n: int} {--type: iter / recurs}
+2. factorial {n: int} {--type: iter / recurs}
+3. sort {a: list[int]} {--type: bubble / quick / counting / radix / bucket / heap} {--reverse: int}
 
 ## Структура проекта
 
- <pre>
+<pre>
     .
-    ├── lab<# лабораторной работы>             # Кодовая база вашей лабораторной работы
-    │   ├── src/                               # Исходный код
-    │   ├── tests/                             # Unit тесты
-    │   ├── uv.lock                            # зависимости вашего проекта
-    │   ├── report.pdf                         # Отчет
-    │   ├── .gitignore                         # git ignore файл
-    │   ├──.pre-commit-config.yaml             # Средства автоматизации проверки кодстайла
-    │   ├── README.md                          # Описание вашего проекта, с описанием файлов и с титульником о том,
-                                               # что и какая задача
+    ├── src/                               # Исходный код  
+    │   ├── app.py                         # Команды CLI
+    │   ├── benchmarks.py                  # Функции бенчмарка функции, бенчмарка сортировок
+    │   ├── factorial.py                   # Функция итеративного и рекурсивного факториала
+    │   ├── fibonacci.py                   # Функция итеративного и рекурсивного фибоначи
+    │   ├── generators.py                  # Функции генерации случайных списков чисел
+    │   ├── heap.py                        # Класс структуры хипа
+    │   ├── sort.py                        # Функции сортировок
+    │   ├── stack.py                       # Класс структуры стэка 
+    │   ├── validation.py                  # Функции валидации списков
+    │   ├── errors.py                      # Сообщения об ошибках
+    │   ├── main.py                        # Точка входа
+    ├── tests/                             # Тесты
+    │   ├── test_factorial.py              # Тесты функций факториала
+    │   ├── test_fibonacci.py              # Тесты функций фибоначи
+    │   ├── test_sort.py                   # Тесты функций сортировок
+    ├── uv.lock                            # Зависимости проекта
+    ├── .gitignore                         # .gitignore файл
+    ├──.pre-commit-config.yaml             # Средства автоматизации проверки кодстайла
+    ├── README.md                          # Описание проекта, этот файл
 </pre>
 
-В папке [src](./src) лежат файлы с реализацией задачи заданной в лабораторной работе. Обязательным файлом является файл
-[main.py](./src/main.py) в котором описана точка входа в приложение - функция **main**. Требования к коду:
-- Переменные, функции и модули именуются по [**snake_case**](https://realpython.com/ref/glossary/snake-case/)
-- Константы должны быть вынесены в файл **constants.py** и именовановаться с помощию символов в верхнем регистре
-- Классы должны именоваться в [**PascalCase**](https://habr.com/ru/articles/724556/)
-- Имена сущностей должны быть осмысленные и содержательные
-- Все отступы должны быть консистентны: 1 TAB = 4 spaces
-- Весь функционал должен быть описан в функциях и в классах. Не допускается писать весь в глобальном скоупе или в одной функции
-- К каждой функции должны быть описаны  [**docstring**](https://peps.python.org/pep-0257/) и аннотации к аргументам и выходным параметрам функций.
+## Как использовать
+Импортируйте в проект нужные функции из модулей в src/  
+Или используйте команды CLI
 
-В качестве референса проще cходу соблюдать [**PEP8**](https://peps.python.org/pep-0008/) и использовать IDE c готовой поддержкой:
-например PyCharm или VSCode c настроенными плагинами.
-В ходе попыток запушить код в репозиторий ваш код будет проходить проверку статическим анализатором [**mypy**](https://mypy-lang.org/)
-а также с встроенным в [**ruff**](https://astral.sh/ruff) на предмет нарушения код стайла. При работе с кодовой базой
-всю работу необходимо выполнять в [виртуальном окружении](https://docs.python.org/3/tutorial/venv.html)
+# (Eng) Lab #3
+A mini-package of algorithms, including recursive and iterative factorial and Fibonacci functions, sorts (bubble, quick, counting, radix, bucket, heap), heap and stack structures on lists, custom numeric list generators, function execution benchmarks, and sorting functions. CLI support via typer
 
+## Implemented functionality via typer
+1. fibonacci {n: int} {--type: iter / recurs}
+2. factorial {n: int} {--type: iter / recurs}
+3. sort {a: list[int]} {--type: bubble / quick / counting / radix / bucket / heap} {--reverse: int}
 
-В папке [tests](./tests) лежат [unit тесты](https://tproger.ru/articles/testiruem-na-python-unittest-i-pytest-instrukcija-dlja-nachinajushhih) для проверки функциональности программы или ее частей.
-Рекомендуется использовать pytest. Также название тестов должно быть осмысленно и содержать определение проверямой части.
-Базовые соглашения pytest можно посмотреть [здесь](https://www.qabash.com/pytest-default-naming-conventions-guide/).
-Рекомендуется проверять не только успешные кейсы, но и краевые условия и кейсы в которых была допущена ошибка (неудачные кейсы).
+## Project Structure
 
-В качестве пакетного менджера в данном шаблоне/репозитории используется [uv](https://github.com/astral-sh/uv).
-Можно использовать и [стандартные виртальные окружения](https://docs.python.org/3/library/venv.html). В таком случае необходимо добавить в репозиторий `requirements.txt`.
-Это достигается командой
-```shell
-pip freeze > requirements.txt
-```
-Также разрешается использовать [`poetry`](https://python-poetry.org/)
-## Как работать с репозиторием и шаблонами
-1. Необходимо создать репозиторий из этого шаблона. Посмотреть можно [здесь](https://docs.github.com/ru/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)
-2. Склонировать или спуллить его к себе на машину командами `git pull` или `git clone`
-3. Создать виртуальное окружение:
+<pre>
+    .
+    ├── src/                               # Source code
+    │     ├── app.py                       # CLI commands
+    │     ├── benchmarks.py                # Functions for benchmarking functions, sorting benchmark
+    │     ├── factorial.py                 # Iterative and recursive factorial function
+    │     ├── fibonacci.py                 # Iterative and recursive Fibonacci function
+    │     ├── generators.py                # Functions for generating random lists of numbers
+    │     ├── heap.py                      # Heap structure class
+    │     ├── sort.py                      # Sorting functions
+    │     ├── stack.py                     # Structure class stack
+    │     ├── validation.py                # List validation functions
+    │     ├── errors.py                    # Error messages
+    │     ├── main.py                      # Entry point
+    ├── tests/                             # Tests
+    │     ├── test_factorial.py            # Factorial function tests
+    │     ├── test_fibonacci.py            # Fibonacci function tests
+    │     ├── test_sort.py                 # Sorting function tests
+    ├── uv.lock                            # Project dependencies
+    ├── .gitignore                         # .gitignore file
+    ├──.pre-commit-config.yaml             # Automation tools Codestyle checks
+    ├── README.md                          # Project description, this file
+</pre>
 
-    a. Для uv прописать команду `uv venv`. Затем прописать `.venv/bin/activate` в терминале
-
-    b. Для обычного python `python -m venv <имя директории где будет храниться папка .venv>`. Затем прописать `.venv/bin/activate` в терминале
-4. Установить [`pre-commit`](https://pre-commit.com/). Для этого достаточно ввести команду `pip install pre-commit`
-5. Выполнить команду `pre-commit install`
-6. При запушивании в репозиторий необходимо правильно составлять сообщения коммита. Правила можно прочитать [здесь](https://github.com/RomuloOliveira/commit-messages-guide/blob/master/README_ru-RU.md)
-7. **Внимательно** читайте то, что пишется при попытке коммита, если исправили ошибки нужно заново добавить отредактированные файлы в гит и попробовать коммитнуть
+## How to use
+Import the required functions from modules in src/ into the project
+Or use CLI commands
