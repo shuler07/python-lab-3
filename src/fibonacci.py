@@ -2,7 +2,7 @@ from functools import lru_cache
 from src.validation import validate_natural
 
 
-def fibo(n: int) -> int:
+def fibonacci(n: int) -> int:
     """
     Find fibonacci number at position n using iterations
     Args:
@@ -25,7 +25,7 @@ def fibo(n: int) -> int:
 
 
 @lru_cache()
-def fibo_recursive(n: int) -> int:
+def fibonacci_recursive(n: int) -> int:
     """
     Find fibonacci number at position n using recursion
     Args:
@@ -40,4 +40,4 @@ def fibo_recursive(n: int) -> int:
     if n <= 2:
         return 1
 
-    return fibo_recursive(n - 1) + fibo_recursive(n - 2)
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
