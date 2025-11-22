@@ -8,3 +8,8 @@ class IrrationalListError(Exception):
         super().__init__(
             f"Irrational list for such type of sorting. Max range - 10 ** 6, got - {size}"
         )
+
+
+class EmptyStackError(Exception):
+    def __init__(self):
+        super().__init__("Attempt to get element from empty stack")
