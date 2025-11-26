@@ -10,6 +10,7 @@
 
 <pre>
     .
+    ├── practice/                          # Практические задачи написания сортировок, структур и алгоритмов
     ├── src/                               # Исходный код  
     │   ├── app.py                         # Команды CLI
     │   ├── benchmarks.py                  # Функции бенчмарка функции, бенчмарка сортировок
@@ -48,6 +49,7 @@ A mini-package of algorithms, including recursive and iterative factorial and Fi
 
 <pre>
     .
+    ├── practice/                          # Practical tasks of writing sorting methods, structures and algorithmes
     ├── src/                               # Source code
     │     ├── app.py                       # CLI commands
     │     ├── benchmarks.py                # Functions for benchmarking functions, sorting benchmark
