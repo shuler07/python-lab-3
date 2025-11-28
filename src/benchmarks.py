@@ -49,12 +49,13 @@ def benchmark_sorts(
 def print_formated_benchmark_sorts(results: dict[str, dict[str, float]]) -> None:
     "Print beatiful table with sorting functions benchmarks results"
     algos = list(results.keys())
-    print(f'|{"List name":^16}|', end="")
+    max_len_of_list_name = max(len(i) for i in results[list(results.keys())[0]].keys())
+    print(f'|{"List name":^{max_len_of_list_name}}|', end="")
     for alg in algos:
         print(f"{alg:^16}|", end="")
     print()
     for arr in results[algos[0]].keys():
-        print(f"|{arr:^16}|", end="")
+        print(f"|{arr:^{max_len_of_list_name}}|", end="")
         for alg in algos:
             res = results[alg][arr]
             print(f"{f'{res}s':^16}|", end="")
