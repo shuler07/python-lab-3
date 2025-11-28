@@ -20,7 +20,7 @@ def rand_int_array(n: int, lo: int, hi: int, distinct=False, seed=None) -> list[
         n = min(n, hi - lo + 1)
         while len(_a) < n:
             _a.add(random.randint(lo, hi))
-        return _a
+        return list(_a)
 
     def _get_array():
         _a: list[int] = []
